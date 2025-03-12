@@ -9,7 +9,8 @@ module "vpc" {
 }
 
 module "mig" {
-  source  = "./modules/mig"
-  project = var.project
+  source          = "./modules/mig"
+  project         = var.project
   subnet_nginx_id = module.vpc.subnet_nginx_id
+  zone            = var.zone
 }

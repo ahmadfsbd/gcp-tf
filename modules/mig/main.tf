@@ -70,3 +70,49 @@ resource "google_compute_instance_template" "nginx-web-server" {
 #    }
 #  }
 #}
+
+
+#
+# Managed Instance group
+#
+resource "google_compute_instance_group_manager" "compute_manager_nginx" {
+  name               = "compute-manager-nginx"
+  project            = var.project
+  base_instance_name = "nginx-instance"
+  zone               = var.zone
+
+  # application version managed by this manager
+  # an existing instance template should be provided
+  # a name is optional
+  version {
+    name              = "nginx-v0.1"
+    instance_template = google_compute_instance_template.nginx-web-server.self_link
+  }
+
+  # used by load balancer backend services to reference a specific port
+  named_port {
+    name = "http"
+    port = 80
+  }
+}
+
+
+#
+# Autoscaler
+#
+resource "google_compute_autoscaler" "nginx_autoscaler" {
+  name    = "nginx-autoscaler"
+  project = var.project
+  zone    = var.zone
+  target  = google_compute_instance_group_manager.compute_manager_nginx.id
+
+  autoscaling_policy {
+    max_replicas    = 3
+    min_replicas    = 1
+    cooldown_period = 60
+
+    cpu_utilization {
+      target = 0.6
+    }
+  }
+}
