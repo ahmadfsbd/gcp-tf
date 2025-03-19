@@ -12,7 +12,7 @@ resource "google_sql_database_instance" "sql_nginx_db" {
   #root_password    =
 
   settings {
-    tier        = "db-f1-micro"
+    tier        = "db-g1-small"
     disk_type   = "PD_HDD"
     ip_configuration {
       ipv4_enabled                                  = false

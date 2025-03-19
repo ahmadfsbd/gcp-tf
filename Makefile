@@ -46,3 +46,6 @@ plan:
 
 apply:
 	TF_DATA_DIR=".terraform-$(GIT_BRANCH)" terraform apply
+
+destroy:
+	TF_DATA_DIR=".terraform-$(GIT_BRANCH)" terraform destroy

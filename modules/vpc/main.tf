@@ -44,3 +44,23 @@ resource "google_compute_firewall" "net-web-allow-ssh-and-https" {
 
   source_ranges = ["0.0.0.0/0"]
 }
+
+#
+# Ip Allocation for Private Service Access (Cloud SQL)
+#
+resource "google_compute_global_address" "private_service_access_ip_range" {
+  name          = "private-service-access-ip-range"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 24
+  network       = google_compute_network.vpc_network_web.id
+}
+
+#
+# Create a private connection for Cloud SQL from the allocated range
+#
+resource "google_service_networking_connection" "cloud_sql_private_connection" {
+  network                 = google_compute_network.vpc_network_web.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_service_access_ip_range.name]
+}
