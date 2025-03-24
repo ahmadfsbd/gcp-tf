@@ -36,3 +36,10 @@ module "sql" {
   vpc_self_link       = module.vpc.vpc_web_self_link
   depends_on          = [module.vpc.cloud_sql_private_connection]
 }
+
+module "lb" {
+  source  = "./modules/lb"
+  project = var.project
+  mig_nginx       = module.mig.mig_nginx
+}
+

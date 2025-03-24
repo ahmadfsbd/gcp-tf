@@ -39,7 +39,7 @@ enable-cloudresourcemanager-api: auth
 # such as statefile, plugins for providers, and configuration files
 init:
 	TF_DATA_DIR=".terraform-$(GIT_BRANCH)" terraform init -reconfigure \
-		-backend-config="bucket=$(TF_STATE_BUCKET)"
+		-backend-config="bucket=$(TF_STATE_BUCKET)" --upgrade
 
 plan:
 	TF_DATA_DIR=".terraform-$(GIT_BRANCH)" terraform plan | tee plan.log
