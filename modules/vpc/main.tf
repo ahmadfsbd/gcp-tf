@@ -33,17 +33,17 @@ resource "google_compute_subnetwork" "vpc_network_web_subnet_db" {
 #
 # Firewall Rules
 #
-resource "google_compute_firewall" "net-web-allow-ssh-and-https" {
-  name    = "allow-ssh-and-https"
-  network = google_compute_network.vpc_network_web.name
-
-  allow {
-    protocol = "tcp"
-    ports    = [22, 80, 443]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-}
+#resource "google_compute_firewall" "net-web-allow-ssh-and-https" {
+#  name    = "allow-ssh-and-https"
+#  network = google_compute_network.vpc_network_web.name
+#
+#  allow {
+#    protocol = "tcp"
+#    ports    = [22, 80, 443]
+#  }
+#
+#  source_ranges = ["0.0.0.0/0"]
+#}
 
 #
 # Ip Allocation for Private Service Access (Cloud SQL)

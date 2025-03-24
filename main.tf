@@ -2,11 +2,6 @@
 # Enable APIs
 #
 //  needed for private sql access
-resource "google_project_service" "service_networking" {
-  project = var.project
-  service = "servicenetworking.googleapis.com"
-}
-
 resource "google_project_service" "cloud_resource_manager" {
   project = var.project
   service = "cloudresourcemanager.googleapis.com"
@@ -38,8 +33,8 @@ module "sql" {
 }
 
 module "lb" {
-  source  = "./modules/lb"
-  project = var.project
+  source          = "./modules/lb"
+  project         = var.project
   mig_nginx       = module.mig.mig_nginx
 }
 

@@ -39,4 +39,6 @@ module "gce-lb-http" {
       }
     }
   }
+
+  firewall_networks	= ["${var.project}-network-web"]
 }

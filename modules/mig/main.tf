@@ -24,6 +24,8 @@ resource "google_compute_instance_template" "nginx-web-server" {
 
   network_interface {
     subnetwork = var.subnet_nginx_id
+    # external ip is required on instance for lb health check to pass
+    # https://stackoverflow.com/questions/50795561/google-cloud-http-load-balancer-health-check-fails-without-an-external-ip
     access_config {
       // Ephemeral public IP
     }

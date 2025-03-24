@@ -30,9 +30,11 @@ create-tfstate-bucket:
 	gcloud storage buckets update gs://$(TF_STATE_BUCKET) --project $(PROJECT) \
 	--versioning
 
-enable-cloudresourcemanager-api: auth
+enable-apis: auth
 	gcloud --project=$(PROJECT) \
 		services enable cloudresourcemanager.googleapis.com
+	gcloud --project=$(PROJECT) \
+		services enable servicenetworking.googleapis.com
 
 # Initialize terraform backend (gcs) and create state file in gcp bucket
 # The local .terraform directory will be used by terraform to store data

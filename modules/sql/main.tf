@@ -1,5 +1,3 @@
-
-
 #
 # Cloud SQL Instance
 #
@@ -23,4 +21,7 @@ resource "google_sql_database_instance" "sql_nginx_db" {
         zone = var.zone
     }
   }
+
+  deletion_protection = false
+
 }
