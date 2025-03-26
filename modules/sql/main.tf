@@ -25,3 +25,26 @@ resource "google_sql_database_instance" "sql_nginx_db" {
   deletion_protection = false
 
 }
+
+#
+# SQL User
+#
+resource "google_sql_user" "db_user" {
+  name     = "dbuser"
+  instance = google_sql_database_instance.sql_nginx_db.name
+  password = "password"
+  project  = var.project
+}
+# Could use a gcp secret in place of specifying password directly
+
+#
+# CloudSQL DB
+#
+resource "google_sql_database" "nginx_db" {
+  name     = "nginx-db"  # Name of the database
+  instance = google_sql_database_instance.sql_nginx_db.name
+  project  = var.project
+}
+
+### Verify Access ###
+# From the nginx-vm run: $ psql -h <sql-private-ip> -U dbuser -d nginx-db 

@@ -1,6 +1,25 @@
 #
+# Service Account
+#
+resource "google_service_account" "sa_nginx" {
+  account_id   = "sa-nginx"
+  display_name = "nginx mig service account"
+  project      = var.project
+}
+
+// allow service account access to cloud sql
+// allows access to all sql instances, for granular permissions use firewaall and private ip of sql
+resource "google_project_iam_member" "nginx_cloudsql_access" {
+  project = var.project
+  role    = "roles/cloudsql.client"
+  member  = "serviceAccount:${google_service_account.sa_nginx.email}"
+}
+
+#
 # Instance Template
 #
+// problem with isntance template is that it is immutable
+// for any changes, you have to create a new one
 resource "google_compute_instance_template" "nginx-web-server" {
   name                 = "nginx-web-server"
   description          = "This template is used to create nginx server instances."
@@ -53,11 +72,11 @@ resource "google_compute_instance_template" "nginx-web-server" {
     EOT
   }
 
-#  service_account {
-#    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
-#    email  = google_service_account.default.email
-#    scopes = ["cloud-platform"]
-#  }
+  service_account {
+    # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
+    email  = google_service_account.sa_nginx.email
+    scopes = ["cloud-platform"]
+  }
 }
 
 #resource "google_compute_resource_policy" "daily_backup" {
@@ -83,9 +102,8 @@ resource "google_compute_instance_group_manager" "compute_manager_nginx" {
   base_instance_name = "nginx-instance"
   zone               = var.zone
 
-  # application version managed by this manager
-  # an existing instance template should be provided
-  # a name is optional
+  # application version managed by this manager. An existing instance template should 
+  # be provided a name is optional
   version {
     name              = "nginx-v0.1"
     instance_template = google_compute_instance_template.nginx-web-server.self_link
