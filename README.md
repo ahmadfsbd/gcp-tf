@@ -17,6 +17,7 @@ Follow these steps to configure the GCP and Terraform:
 3. Configure application-default-login credentials by running 'make adc-login'
 4. Create a tfstate bucket to store terraform states 'make create-tfstate-bucket'
 5. Initialize terraform and gcs backend by running 'make init'
+6. Enable APIs 'make enable-apis'
 
 ## Deploy Terraform Changes to GCP
 1. Run terraform plan to see the changes are as desired 'make plan'

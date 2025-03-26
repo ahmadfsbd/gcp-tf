@@ -26,13 +26,28 @@ resource "google_sql_database_instance" "sql_nginx_db" {
 
 }
 
+# Create a secret in Google Secret Manager
+resource "google_secret_manager_secret" "db_password_secret" {
+  secret_id = "db-password"
+  project   = var.project
+  replication {
+    auto {}
+  }
+}
+
+# Add the secret version with the password
+resource "google_secret_manager_secret_version" "db_password_version" {
+  secret      = google_secret_manager_secret.db_password_secret.id
+  secret_data = var.db_password
+}
+
 #
 # SQL User
 #
 resource "google_sql_user" "db_user" {
   name     = "dbuser"
   instance = google_sql_database_instance.sql_nginx_db.name
-  password = "password"
+  password = google_secret_manager_secret_version.db_password_version.secret_data
   project  = var.project
 }
 # Could use a gcp secret in place of specifying password directly

@@ -29,6 +29,7 @@ module "sql" {
   region              = var.region
   zone                = var.zone
   vpc_self_link       = module.vpc.vpc_web_self_link
+  db_password         = var.db_password
   depends_on          = [module.vpc.cloud_sql_private_connection]
 }
 
