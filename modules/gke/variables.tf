@@ -2,12 +2,14 @@ variable "project" {
     type = string
 }
 
-variable "subnet_nginx_id" {
+variable "region" {
     type = string
 }
 
-variable "zone" {
+variable "network" {
     type = string
 }
 
-#eof
+variable "subnet" {
+    type = string
+}
