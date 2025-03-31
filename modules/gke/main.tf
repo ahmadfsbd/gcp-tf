@@ -7,6 +7,12 @@ resource "google_service_account" "sa_node_pool_web" {
   project      = var.project
 }
 
+// add this role for node logging to work properly
+resource "google_project_iam_member" "sa_node_pool_web_permissions" {
+  project = var.project
+  role    = "roles/container.defaultNodeServiceAccount"
+  member  = "serviceAccount:${google_service_account.sa_node_pool_web.email}"
+}
 
 #
 # GKE Cluster

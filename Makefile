@@ -36,6 +36,10 @@ enable-apis: auth
 	gcloud --project=$(PROJECT) \
 		services enable servicenetworking.googleapis.com
 
+# get k8s cluster credentials for kubectl to work
+get-k8s-credentials:
+	gcloud container clusters get-credentials primary-gke-cluster --region $(REGION)
+
 # Initialize terraform backend (gcs) and create state file in gcp bucket
 # The local .terraform directory will be used by terraform to store data
 # such as statefile, plugins for providers, and configuration files
