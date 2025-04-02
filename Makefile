@@ -35,6 +35,8 @@ enable-apis: auth
 		services enable cloudresourcemanager.googleapis.com
 	gcloud --project=$(PROJECT) \
 		services enable servicenetworking.googleapis.com
+	gcloud --project=$(PROJECT) \
+		services enable	container.googleapis.com
 
 # get k8s cluster credentials for kubectl to work
 get-k8s-credentials:

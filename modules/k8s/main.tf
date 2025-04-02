@@ -1,9 +1,9 @@
 #
 # Deployment
 #
-resource "kubernetes_deployment_v1" "web_server_deployment" {
+resource "kubernetes_deployment_v1" "deployment_nginx" {
   metadata {
-    name = "web-server-deployment"
+    name = "deployment-nginx"
   }
 
   spec {
@@ -19,15 +19,16 @@ resource "kubernetes_deployment_v1" "web_server_deployment" {
           app = "nginx"
         }
       }
-
+ 
       spec {
+        // list of gcp provided containers: https://console.cloud.google.com/artifacts/docker/google-containers/us/gcr.io
         container {
-          image = "us-docker.pkg.dev/google-samples/containers/gke/hello-app:2.0"
+          image = "nginx:latest"
           name  = "nginx-container"
 
           port {
-            container_port = 8080
-            name           = "nginx-svc"
+            container_port = 80
+            name           = "container-nginx"
           }
 
           security_context {
@@ -44,12 +45,7 @@ resource "kubernetes_deployment_v1" "web_server_deployment" {
           liveness_probe {
             http_get {
               path = "/"
-              port = "nginx-svc"
-
-              http_header {
-                name  = "X-Custom-Header"
-                value = "Awesome"
-              }
+              port = 80
             }
 
             initial_delay_seconds = 3
@@ -78,35 +74,77 @@ resource "kubernetes_deployment_v1" "web_server_deployment" {
   }
 }
 
-resource "kubernetes_service_v1" "default" {
+#
+# K8S service / loadbalancer
+#
+
+# deploy an external loadbalancer (with public ip) in this case
+# can be an internal (with private ip only) if to be used only inside vpc resources
+
+resource "kubernetes_service_v1" "service-nginx" {
   metadata {
-    name = "example-hello-app-loadbalancer"
+    name = "service-nginx"
     annotations = {
-      "networking.gke.io/load-balancer-type" = "Internal" # Remove to create an external loadbalancer
+      #"networking.gke.io/load-balancer-type" = "Internal" # Remove to create an external loadbalancer
     }
   }
 
   spec {
     selector = {
-      app = kubernetes_deployment_v1.default.spec[0].selector[0].match_labels.app
+      app = kubernetes_deployment_v1.deployment_nginx.spec[0].selector[0].match_labels.app
     }
 
-    ip_family_policy = "RequireDualStack"
+    # we don't have dual stack, i.e. ipv4 + ipv6, in this case
+    #ip_family_policy = "RequireDualStack"
 
     port {
       port        = 80
-      target_port = kubernetes_deployment_v1.default.spec[0].template[0].spec[0].container[0].port[0].name
+      target_port = kubernetes_deployment_v1.deployment_nginx.spec[0].template[0].spec[0].container[0].port[0].name
     }
 
     type = "LoadBalancer"
   }
-
-  depends_on = [time_sleep.wait_service_cleanup]
 }
 
-# Provide time for Service cleanup
-resource "time_sleep" "wait_service_cleanup" {
-  depends_on = [google_container_cluster.default]
 
-  destroy_duration = "180s"
+#
+# Add Pod Autoscalling
+#
+resource "kubernetes_horizontal_pod_autoscaler_v2" "nginx_hpa" {
+  metadata {
+    name = "nginx-hpa"
+  }
+
+  spec {
+    scale_target_ref {
+      api_version = "apps/v1"
+      kind        = "Deployment"
+      name        = kubernetes_deployment_v1.deployment_nginx.metadata[0].name
+    }
+
+    min_replicas = 2  # Minimum number of pods
+    max_replicas = 4  # Maximum number of pods
+
+    metric {
+      type = "Resource"
+      resource {
+        name  = "cpu"
+        target {
+          type               = "Utilization"
+          average_utilization = 50 # Target CPU usage (percentage)
+        }
+      }
+    }
+
+    metric {
+      type = "Resource"
+      resource {
+        name  = "memory"
+        target {
+          type               = "Utilization"
+          average_utilization = 70 # Target Memory usage (percentage)
+        }
+      }
+    }
+  }
 }
