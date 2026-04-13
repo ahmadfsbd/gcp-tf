@@ -1,2 +1,10 @@
 network_name = "tf-vms-prod"
 network_cidr = "101.10.20.0/24"
+create_router = true
+external_network_name = "public"
+vm_count     = 2
+vm_name_prefix = "prod-vm"
+assign_floating_ip = true
+flavor_id    = "FLAVOR_ID_HERE"
+image_id     = "IMAGE_ID_HERE"
+keypair_name = "KEYPAIR_NAME_HERE"

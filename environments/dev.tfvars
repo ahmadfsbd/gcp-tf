@@ -1,2 +1,10 @@
 network_name = "tf-vms-dev"
 network_cidr = "101.10.10.0/24"
+create_router = true
+external_network_name = "public"
+vm_count     = 3
+vm_name_prefix = "tf-dev-vm"
+assign_floating_ip = true
+flavor_id    = "2003"
+image_id     = "269992fa-0565-4449-996d-f9ccfe2402c5"
+keypair_name = "ma30"
