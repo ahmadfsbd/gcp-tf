@@ -56,6 +56,9 @@ In [app.terraform.io](https://app.terraform.io):
 1. Go to your org `ahmadfsbd`.
 2. Click **New Workspace** → choose **CLI-driven workflow**.
 3. Create workspaces using the naming pattern `gcp-tf-<env>`.
+4. In the workspace settings, set **Execution Mode** to **Local**.
+
+This means Terraform state stays in Terraform Cloud, but `plan` and `apply` run on your machine instead of in Terraform Cloud workers.
 
 > **CLI-driven** means you still run Terraform locally — HCP just stores the state.
 
@@ -73,6 +76,12 @@ Important for OpenStack provider authentication:
 
 - If runs execute remotely in Terraform Cloud, set OpenStack `OS_*` variables in the workspace Variables page.
 - If runs execute locally, source your OpenRC file in your shell before running Terraform.
+
+Important for network access:
+
+- If runs execute remotely in Terraform Cloud, the Terraform Cloud worker must be able to reach your OpenStack API endpoints over the network.
+- In practice, that usually means the OpenStack auth/API endpoints must be reachable from the public internet, or you must use a private agent/runner setup in a network that can reach OpenStack.
+- If your cloud is only reachable from your internal network or VPN, local execution is usually simpler.
 
 ---
 
