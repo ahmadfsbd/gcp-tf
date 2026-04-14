@@ -39,12 +39,10 @@ Organization: ahmadfsbd
 └── Workspace: gcp-tf-staging  -> stores staging state
 ```
 
-Workspace naming pattern in this repo is `gcp-tf-<env>`, selected via Terraform workspace commands.
+In this repository, each environment folder pins a specific workspace in its own `versions.tf`:
 
-Because backend uses `workspaces { prefix = "gcp-tf-" }`:
-
-- Terraform Cloud workspace is `gcp-tf-<env>`
-- Terraform CLI workspace command uses `<env>`
+- `environments/dev/versions.tf` -> `gcp-tf-dev`
+- `environments/prod/versions.tf` -> `gcp-tf-prod`
 
 ---
 
@@ -87,9 +85,9 @@ Important for network access:
 
 ## Configuring This Project
 
-Terraform Cloud backend is configured in `cloud.tf` using remote backend workspace prefix.
+Terraform Cloud backend is configured per environment root in `environments/<env>/versions.tf`.
 
-### `cloud.tf` (current pattern):
+### Example: `environments/dev/versions.tf`
 
 ```hcl
 terraform {
@@ -97,22 +95,13 @@ terraform {
     organization = "ahmadfsbd"
 
     workspaces {
-      prefix = "gcp-tf-"
+      name = "gcp-tf-dev"
     }
   }
 }
 ```
 
-With this configuration, Terraform maps workspaces like:
-
-- `gcp-tf-dev`
-- `gcp-tf-prod`
-- `gcp-tf-qa`
-
-Example mapping:
-
-- `terraform workspace select dev` (CLI)
-- uses `gcp-tf-dev` (Terraform Cloud)
+For prod, `environments/prod/versions.tf` uses workspace `gcp-tf-prod`.
 
 ## Variable Handling with Remote Backend
 
@@ -138,19 +127,22 @@ Why this happens in Remote mode:
 
 How this repo handles Remote mode safely:
 
-- `scripts/tf-env.sh --run-mode remote` copies `environments/<env>/terraform.tfvars` to `.tfenv.auto.tfvars`.
+- In the environment folder, copy `terraform.tfvars` to `.auto.tfvars` before running.
 - Terraform plan/apply/destroy then reads those variables automatically.
-- The temporary file is removed when command exits.
+- Remove the temporary file after command exits.
 
-Exact script lines:
+Example (dev):
 
 ```bash
-cp "$project_root/$tfvars_path" "$project_root/$auto_tfvars_path"
-trap 'rm -f "$project_root/$auto_tfvars_path"' EXIT
+cd environments/dev
+cp terraform.tfvars .tfenv.auto.tfvars
+terraform plan
+terraform apply
+rm -f .tfenv.auto.tfvars
 ```
 
-First line creates `.tfenv.auto.tfvars` from your env tfvars file.
-Second line ensures it is deleted when the command exits.
+First command creates temporary `.tfenv.auto.tfvars` from the environment tfvars file.
+Last command cleans it up.
 
 ---
 
@@ -159,7 +151,7 @@ Second line ensures it is deleted when the command exits.
 With this backend, the authoritative infrastructure state is in Terraform Cloud.
 
 - Remote source of truth: workspace state in Terraform Cloud.
-- Local backend metadata: `.terraform/terraform.tfstate`.
+- Local backend metadata: `environments/<env>/.terraform/terraform.tfstate`.
 - Legacy local files like `terraform.tfstate` and `terraform.tfstate.backup` may still exist from older local-backend runs.
 
 Important detail:
@@ -172,9 +164,9 @@ If legacy local state files exist, keep them only for reference and avoid using 
 
 Learning note:
 
-- Switching Terraform CLI workspaces locally does not normally create state conflicts by itself.
-- In this setup, local CLI workspace `dev` maps to remote Terraform Cloud workspace `gcp-tf-dev`, `prod` maps to `gcp-tf-prod`, and so on.
-- The real state is separated remotely in Terraform Cloud; the main local risk is confusion, not state collision.
+- Folder-based roots isolate environment operations by working directory.
+- `environments/dev` always targets `gcp-tf-dev`; `environments/prod` always targets `gcp-tf-prod`.
+- The main local risk is running commands in the wrong folder, so always check your current directory.
 
 ---
 
@@ -201,3 +193,4 @@ Error: Error locking state: Error acquiring the state lock
 They must wait until the first apply finishes before running their own.
 
 Common conflict cause is not lock contention, but running with the wrong workspace selected. The environment/workspace usage workflow is documented in `README.md`.
+Common conflict cause is running commands in the wrong environment folder. The environment workflow is documented in `README.md`.
