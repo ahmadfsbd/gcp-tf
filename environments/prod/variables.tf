@@ -1,6 +1,12 @@
-variable "network_name" {
-  description = "Name of the OpenStack network"
+variable "tf_env" {
+  description = "Terraform environment name"
   type        = string
+}
+
+variable "resource_prefix" {
+  description = "Prefix to be applied on resource names"
+  type        = string
+  default     = ""
 }
 
 variable "network_cidr" {
@@ -53,14 +59,20 @@ variable "vm_count" {
   default     = 1
 }
 
-variable "vm_name_prefix" {
-  description = "Prefix used for naming VMs"
-  type        = string
-  default     = "tf-vm"
-}
-
 variable "assign_floating_ip" {
   description = "Whether to allocate and associate floating IPs to VMs"
   type        = bool
   default     = true
+}
+
+variable "existing_floating_ips" {
+  description = "List of existing floating IP addresses to reuse instead of allocating new ones"
+  type        = list(string)
+  default     = []
+}
+
+variable "auto_discover_fips" {
+  description = "Automatically discover available (unattached) floating IPs via OpenStack CLI instead of allocating new ones"
+  type        = bool
+  default     = false
 }

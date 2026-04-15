@@ -5,7 +5,7 @@ terraform {
     organization = "ahmadfsbd"
 
     workspaces {
-      name = "gcp-tf-prod"
+      name = "gcp-tf-dev"
     }
   }
 

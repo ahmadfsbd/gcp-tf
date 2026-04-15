@@ -47,6 +47,18 @@ variable "external_network_name" {
     default     = "public"
 }
 
+variable "existing_floating_ips" {
+    description = "List of existing floating IP addresses to reuse (consumed first before allocating new ones)"
+    type        = list(string)
+    default     = []
+}
+
+variable "auto_discover_fips" {
+    description = "Automatically discover available (unattached) floating IPs via OpenStack CLI instead of allocating new ones"
+    type        = bool
+    default     = false
+}
+
 
 
 

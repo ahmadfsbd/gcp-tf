@@ -1,7 +1,11 @@
-module "network" {
-  source = "../../modules/netowork"
+locals {
+  resource_prefix = var.resource_prefix != "" ? var.resource_prefix : "tf-${var.tf_env}"
+}
 
-  network_name          = var.network_name
+module "network" {
+  source = "../../modules/network"
+
+  network_name          = "${local.resource_prefix}-network"
   subnet_cidr           = var.network_cidr
   create_router         = var.create_router
   external_network_name = var.external_network_name
@@ -15,7 +19,7 @@ module "vm" {
   depends_on = [module.network]
 
   vm_count              = var.vm_count
-  vm_name_prefix        = var.vm_name_prefix
+  vm_name_prefix        = local.resource_prefix
   image_id              = var.image_id
   flavor_id             = var.flavor_id
   keypair_name          = var.keypair_name
@@ -23,4 +27,6 @@ module "vm" {
   security_group_name   = module.network.security_group_name
   assign_floating_ip    = var.assign_floating_ip
   external_network_name = var.external_network_name
+  existing_floating_ips = var.existing_floating_ips
+  auto_discover_fips    = var.auto_discover_fips
 }
