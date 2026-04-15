@@ -28,5 +28,4 @@ module "vm" {
   assign_floating_ip    = var.assign_floating_ip
   external_network_name = var.external_network_name
   existing_floating_ips = var.existing_floating_ips
-  auto_discover_fips    = var.auto_discover_fips
 }

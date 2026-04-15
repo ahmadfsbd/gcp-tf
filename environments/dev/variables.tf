@@ -70,9 +70,3 @@ variable "existing_floating_ips" {
   type        = list(string)
   default     = []
 }
-
-variable "auto_discover_fips" {
-  description = "Automatically discover available (unattached) floating IPs via OpenStack CLI instead of allocating new ones"
-  type        = bool
-  default     = false
-}

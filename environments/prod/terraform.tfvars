@@ -1,11 +1,10 @@
 tf_env                = "prod"
-network_cidr          = "101.10.10.0/24"
+network_cidr          = "101.10.20.0/24"
 create_router         = true
 external_network_name = "public"
-vm_count              = 3
+vm_count              = 2
 assign_floating_ip    = true
 flavor_id             = "2003"
 image_id              = "269992fa-0565-4449-996d-f9ccfe2402c5"
 keypair_name          = "ma30"
-auto_discover_fips    = true
-# existing_floating_ips = ["x.x.x.x", "y.y.y.y"]  # uncomment and fill to reuse existing FIPs
+#existing_floating_ips = ["172.27.21.158", "172.27.20.10", "172.27.20.13", "172.27.28.13"]
